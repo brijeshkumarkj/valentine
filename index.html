@@ -29,22 +29,19 @@
     to   { transform: translateY(-110vh); opacity: 0; }
   }
 
-  /* Card */
+  /* Main card */
   .container {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-
     width: min(90vw, 440px);
     min-height: 280px;
     padding: 40px 30px;
-
     background: white;
     border-radius: 32px;
     box-shadow: 0 20px 50px rgba(0,0,0,0.25);
     text-align: center;
-
     animation: popIn 0.8s ease;
   }
 
@@ -91,6 +88,15 @@
     position: absolute;
     background: #ffd6e0;
   }
+
+  /* Shake fallback */
+  @keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
+    100% { transform: translateX(0); }
+  }
 </style>
 </head>
 
@@ -130,6 +136,13 @@
     const maxX = container.clientWidth - btnWidth - padding;
     const maxY = container.clientHeight - btnHeight - padding;
 
+    // If no space left → shake instead of freezing
+    if (maxX <= 0 || maxY <= 0) {
+      noBtn.style.animation = "shake 0.3s";
+      setTimeout(() => noBtn.style.animation = "", 300);
+      return;
+    }
+
     const x = Math.random() * maxX;
     const y = Math.random() * maxY;
 
@@ -138,11 +151,12 @@
 
     question.innerText = messages[noCount % messages.length];
 
-    yesScale += 0.12;
+    // Grow Yes button but cap it
+    yesScale = Math.min(yesScale + 0.12, 1.8);
     yesBtn.style.transform = `scale(${yesScale})`;
   }
 
-  // Mouse & touch
+  // Mouse + touch
   noBtn.addEventListener("mouseenter", moveButton);
   noBtn.addEventListener("touchstart", (e) => {
     e.preventDefault();
@@ -169,7 +183,7 @@
     `;
   }
 
-  // Floating hearts generator
+  // Floating hearts
   function createHeart() {
     const heart = document.createElement("div");
     heart.className = "heart";
